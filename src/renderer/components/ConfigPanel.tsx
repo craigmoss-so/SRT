@@ -32,10 +32,10 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-6 border-b border-slate-700/50">
+    <div className="flex flex-col h-full bg-[var(--color-bg-secondary)]">
+      <div className="p-6 border-b border-[var(--color-border)]">
         <h2 className="text-lg font-semibold text-white mb-1">Configuration</h2>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-[var(--color-text-tertiary)]">
           {mode === 'sender' ? 'Configure stream output' : 'Configure stream input'}
         </p>
       </div>
@@ -45,7 +45,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
           {/* Host - Only for sender */}
           {mode === 'sender' && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
                 Destination Host
               </label>
               <input
@@ -53,7 +53,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
                 value={host}
                 onChange={(e) => setHost(e.target.value)}
                 disabled={isRunning}
-                className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
                 placeholder="127.0.0.1"
                 required
               />
@@ -62,7 +62,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
 
           {/* Port */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
               {mode === 'sender' ? 'Destination Port' : 'Listen Port'}
             </label>
             <input
@@ -70,7 +70,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
               value={port}
               onChange={(e) => setPort(e.target.value)}
               disabled={isRunning}
-              className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
               placeholder="9000"
               min="1024"
               max="65535"
@@ -80,7 +80,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
 
           {/* Latency */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
               Latency (ms)
             </label>
             <input
@@ -88,18 +88,18 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
               value={latency}
               onChange={(e) => setLatency(e.target.value)}
               disabled={isRunning}
-              className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
               placeholder="200"
               min="20"
               max="8000"
             />
-            <p className="mt-1 text-xs text-slate-500">Recommended: 200-500ms</p>
+            <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">Recommended: 200-500ms</p>
           </div>
 
           {/* Input Source - Only for sender */}
           {mode === 'sender' && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
                 Input Source
               </label>
               <input
@@ -107,25 +107,25 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
                 value={inputSource}
                 onChange={(e) => setInputSource(e.target.value)}
                 disabled={isRunning}
-                className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
                 placeholder="/path/to/video.mp4 or http://..."
               />
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
                 Leave empty for test pattern
               </p>
             </div>
           )}
 
           {/* Advanced Settings */}
-          <details className="group">
-            <summary className="cursor-pointer text-sm font-medium text-slate-300 hover:text-white select-none">
-              <span className="inline-block group-open:rotate-90 transition-transform mr-2">▶</span>
+          <details className="group mt-6">
+            <summary className="cursor-pointer text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide hover:text-white select-none flex items-center">
+              <span className="inline-block group-open:rotate-90 transition-transform mr-2 text-white">▶</span>
               Advanced Settings
             </summary>
-            <div className="mt-4 space-y-4 pl-6">
+            <div className="mt-4 space-y-4 pl-4 border-l border-[var(--color-border)]">
               {/* Passphrase */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
                   Passphrase (Encryption)
                 </label>
                 <input
@@ -133,17 +133,17 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
                   value={passphrase}
                   onChange={(e) => setPassphrase(e.target.value)}
                   disabled={isRunning}
-                  className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
                   placeholder="Optional encryption key"
                 />
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
                   10-79 characters for AES encryption
                 </p>
               </div>
 
               {/* Stream ID */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
                   Stream ID
                 </label>
                 <input
@@ -151,7 +151,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
                   value={streamId}
                   onChange={(e) => setStreamId(e.target.value)}
                   disabled={isRunning}
-                  className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
                   placeholder="Optional stream identifier"
                 />
               </div>
@@ -161,11 +161,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
       </div>
 
       {/* Action buttons */}
-      <div className="p-6 border-t border-slate-700/50">
+      <div className="p-6 border-t border-[var(--color-border)]">
         {!isRunning ? (
           <button
             onClick={handleSubmit}
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-2"
+            className="btn-primary w-full px-6 py-3 rounded flex items-center justify-center space-x-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -176,7 +176,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
         ) : (
           <button
             onClick={onStop}
-            className="w-full px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-2"
+            className="btn-danger w-full px-6 py-3 rounded flex items-center justify-center space-x-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

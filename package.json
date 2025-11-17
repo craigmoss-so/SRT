@@ -1,0 +1,54 @@
+{
+  "name": "srt-streaming-app",
+  "version": "1.0.0",
+  "description": "Standalone SRT streaming application for sending and receiving SRT streams",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build": "electron-builder --win --mac"
+  },
+  "keywords": [
+    "SRT",
+    "streaming",
+    "electron",
+    "video"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.2"
+  },
+  "build": {
+    "appId": "com.srt.streaming.app",
+    "productName": "SRT Streaming",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "index.html",
+      "styles.css",
+      "preload.js"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "icon.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "icon.icns",
+      "category": "public.app-category.video"
+    }
+  }
+}

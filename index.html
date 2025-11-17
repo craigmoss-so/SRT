@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src 'self' http://127.0.0.1:*">
+  <title>SRT Streaming</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>SRT STREAMING</h1>
+      <p class="subtitle">Secure Reliable Transport</p>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Mode Selection -->
+      <section class="mode-section">
+        <h2>Mode</h2>
+        <div class="mode-buttons">
+          <button class="mode-btn active" data-mode="sender">SENDER</button>
+          <button class="mode-btn" data-mode="receiver">RECEIVER</button>
+        </div>
+      </section>
+
+      <!-- Configuration Panel -->
+      <section class="config-section">
+        <h2>Configuration</h2>
+        <div class="config-grid">
+          <div class="config-item">
+            <label for="srt-mode">SRT Mode</label>
+            <select id="srt-mode">
+              <option value="caller">Caller</option>
+              <option value="listener">Listener</option>
+              <option value="rendezvous">Rendezvous</option>
+            </select>
+          </div>
+
+          <div class="config-item">
+            <label for="address">Address</label>
+            <input type="text" id="address" placeholder="127.0.0.1" value="127.0.0.1">
+          </div>
+
+          <div class="config-item">
+            <label for="port">Port</label>
+            <input type="number" id="port" placeholder="9000" value="9000" min="1" max="65535">
+          </div>
+
+          <div class="config-item">
+            <label for="latency">Latency (ms)</label>
+            <input type="number" id="latency" placeholder="120" value="120" min="20" max="8000">
+          </div>
+
+          <div class="config-item sender-only">
+            <label for="input-source">Input Source</label>
+            <select id="input-source">
+              <option value="testsrc=size=1280x720:rate=30">Test Pattern (720p)</option>
+              <option value="testsrc=size=1920x1080:rate=30">Test Pattern (1080p)</option>
+              <option value="smptebars=size=1280x720:rate=30">SMPTE Bars (720p)</option>
+              <option value="smptebars=size=1920x1080:rate=30">SMPTE Bars (1080p)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Control Buttons -->
+      <section class="control-section">
+        <button id="start-btn" class="control-btn start-btn">START</button>
+        <button id="stop-btn" class="control-btn stop-btn" disabled>STOP</button>
+      </section>
+
+      <!-- Video Display (Receiver Mode) -->
+      <section class="video-section receiver-only" style="display: none;">
+        <h2>Received Stream</h2>
+        <div class="video-container">
+          <video id="video-player" controls autoplay>
+            Your browser does not support video playback.
+          </video>
+          <div class="video-placeholder">
+            <p>Waiting for stream...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Status Display -->
+      <section class="status-section">
+        <h2>Status</h2>
+        <div class="status-box">
+          <div id="status-indicator" class="status-indicator idle"></div>
+          <div id="status-text" class="status-text">Ready</div>
+        </div>
+        <div class="log-box">
+          <h3>Log</h3>
+          <div id="log-content" class="log-content"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p id="ffmpeg-status">Checking FFmpeg...</p>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

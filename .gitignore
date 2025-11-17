@@ -6,7 +6,6 @@ node_modules/
 # Build outputs
 dist/
 release/
-build/
 *.dmg
 *.zip
 *.exe
@@ -41,10 +40,8 @@ Thumbs.db
 
 # Stream files
 stream/
-*.ts
+segment*.ts
 *.m3u8
-!src/**/*.ts
-!src/**/*.tsx
 
 # Temporary files
 *.tmp

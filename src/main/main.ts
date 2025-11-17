@@ -1,10 +1,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
-import { SRTManager } from './srt-manager';
+import { DualPathSRTManager } from './dual-path-srt-manager';
 import { SimpleHTTPServer } from './http-server';
 
 let mainWindow: BrowserWindow | null = null;
-let srtManager: SRTManager | null = null;
+let srtManager: DualPathSRTManager | null = null;
 let httpServer: SimpleHTTPServer | null = null;
 
 function createWindow() {
@@ -43,7 +43,7 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   createWindow();
-  srtManager = new SRTManager();
+  srtManager = new DualPathSRTManager();
 
   // Start HTTP server for HLS streaming
   const streamDir = path.join(process.cwd(), 'stream');
@@ -65,12 +65,24 @@ app.whenReady().then(async () => {
       mainWindow?.webContents.send('srt:stats', stats);
     });
 
+    srtManager.on('dual-stats', (dualStats) => {
+      mainWindow?.webContents.send('srt:dual-stats', dualStats);
+    });
+
+    srtManager.on('path-switched', (switchInfo) => {
+      mainWindow?.webContents.send('srt:path-switched', switchInfo);
+    });
+
     srtManager.on('error', (error) => {
       mainWindow?.webContents.send('srt:error', error);
     });
 
     srtManager.on('connection', (info) => {
       mainWindow?.webContents.send('srt:connection', info);
+    });
+
+    srtManager.on('dual-path-started', (info) => {
+      mainWindow?.webContents.send('srt:dual-path-started', info);
     });
   }
 
@@ -133,6 +145,36 @@ ipcMain.handle('srt:get-stats', async () => {
     if (!srtManager) throw new Error('SRT Manager not initialized');
     const stats = await srtManager.getStats();
     return { success: true, stats };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('srt:start-dual-receiver', async (_, config) => {
+  try {
+    if (!srtManager) throw new Error('SRT Manager not initialized');
+    await srtManager.startDualReceiver(config);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('srt:get-dual-stats', async () => {
+  try {
+    if (!srtManager) throw new Error('SRT Manager not initialized');
+    const dualStats = srtManager.getDualStats();
+    return { success: true, stats: dualStats };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('srt:get-active-path', async () => {
+  try {
+    if (!srtManager) throw new Error('SRT Manager not initialized');
+    const activePath = srtManager.getActivePath();
+    return { success: true, path: activePath };
   } catch (error) {
     return { success: false, error: (error as Error).message };
   }

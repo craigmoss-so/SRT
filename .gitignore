@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+release/
+build/
+*.dmg
+*.zip
+*.exe
+*.AppImage
+*.deb
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# Stream files
+stream/
+*.ts
+*.m3u8
+!src/**/*.ts
+!src/**/*.tsx
+
+# Temporary files
+*.tmp
+tmp/
+temp/

@@ -15,6 +15,17 @@
       <p class="subtitle">Secure Reliable Transport</p>
     </header>
 
+    <!-- Sidebar for Sources (Receiver Mode) -->
+    <aside class="sidebar receiver-only" style="display: none;">
+      <div class="sidebar-header">
+        <h2>SRT SOURCES</h2>
+        <button id="add-source-btn" class="icon-btn" title="Add Source">+</button>
+      </div>
+      <div class="sources-list" id="sources-list">
+        <!-- Sources will be added here dynamically -->
+      </div>
+    </aside>
+
     <!-- Main Content -->
     <main>
       <!-- Mode Selection -->
@@ -74,13 +85,12 @@
 
       <!-- Video Display (Receiver Mode) -->
       <section class="video-section receiver-only" style="display: none;">
-        <h2>Received Stream</h2>
-        <div class="video-container">
-          <video id="video-player" controls autoplay>
-            Your browser does not support video playback.
-          </video>
-          <div class="video-placeholder">
-            <p>Waiting for stream...</p>
+        <h2>Active Streams</h2>
+        <div class="streams-grid" id="streams-grid">
+          <!-- Stream displays will be added here dynamically -->
+          <div class="no-streams-message">
+            <p>No active streams</p>
+            <p class="hint">Add sources from the sidebar and start receiving</p>
           </div>
         </div>
       </section>
@@ -103,6 +113,61 @@
     <footer>
       <p id="ffmpeg-status">Checking FFmpeg...</p>
     </footer>
+  </div>
+
+  <!-- Source Configuration Modal -->
+  <div id="source-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Add SRT Source</h2>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="source-name">Source Name</label>
+          <input type="text" id="source-name" placeholder="e.g., Internet, 5G, Satellite">
+        </div>
+        <div class="form-group">
+          <label for="source-network">Network Type</label>
+          <select id="source-network">
+            <option value="internet">Internet</option>
+            <option value="5g">5G</option>
+            <option value="satellite">Satellite</option>
+            <option value="lte">LTE</option>
+            <option value="fiber">Fiber</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="source-srt-mode">SRT Mode</label>
+          <select id="source-srt-mode">
+            <option value="caller">Caller</option>
+            <option value="listener">Listener</option>
+            <option value="rendezvous">Rendezvous</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="source-address">Address</label>
+          <input type="text" id="source-address" placeholder="127.0.0.1">
+        </div>
+        <div class="form-group">
+          <label for="source-port">Port</label>
+          <input type="number" id="source-port" placeholder="9000" min="1" max="65535">
+        </div>
+        <div class="form-group">
+          <label for="source-latency">Latency (ms)</label>
+          <input type="number" id="source-latency" placeholder="120" min="20" max="8000" value="120">
+        </div>
+        <div class="form-group">
+          <label for="source-passphrase">Passphrase (optional)</label>
+          <input type="password" id="source-passphrase" placeholder="Optional encryption passphrase">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="save-source-btn" class="control-btn">SAVE</button>
+        <button id="cancel-source-btn" class="control-btn">CANCEL</button>
+      </div>
+    </div>
   </div>
 
   <script src="renderer.js"></script>

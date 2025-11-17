@@ -9,12 +9,24 @@ A standalone desktop application for sending and receiving SRT (Secure Reliable 
   - **Caller**: Connect to a listening endpoint
   - **Listener**: Wait for incoming connections
   - **Rendezvous**: Peer-to-peer connection mode
-- **Real-time Video Display**: View received streams in the application
+- **Multi-Source Receiver**:
+  - Receive from multiple SRT sources simultaneously
+  - Configure sources for different networks (Internet, 5G, Satellite, LTE, Fiber)
+  - Each source runs independently with its own connection
+  - Visual sidebar showing all configured sources
+- **Source Management**:
+  - Add, edit, and delete SRT sources
+  - Save source configurations for quick access
+  - Start/stop individual streams independently
+  - Real-time stream statistics (bitrate, FPS)
+- **Real-time Monitoring**: View active streams with live status indicators
 - **Greyscale UI**: Clean, professional interface with white text
 - **Cross-platform**: Works on Windows and macOS
 - **Configurable Parameters**:
-  - Custom address and port
+  - Custom address and port per source
   - Adjustable latency (20-8000ms)
+  - Optional encryption with passphrase
+  - Network type labeling for organization
   - Multiple test pattern sources for sending
 
 ## Prerequisites
@@ -86,12 +98,25 @@ Send video streams using various test patterns:
 5. Click **START** to begin streaming
 
 ### Receiver Mode
-Receive and display incoming video streams:
+Receive from multiple SRT sources simultaneously:
 1. Select **RECEIVER** mode
-2. Choose SRT mode (Caller/Listener/Rendezvous)
-3. Configure address and port
-4. Click **START** to begin receiving
-5. The received stream will be processed (video display requires additional media server setup)
+2. Click the **+** button in the sidebar to add a source
+3. Configure the source:
+   - Enter a descriptive name (e.g., "Internet Feed", "5G Camera")
+   - Select network type for organization
+   - Choose SRT mode (Caller/Listener/Rendezvous)
+   - Set address and port
+   - Adjust latency as needed
+   - Optionally add encryption passphrase
+4. Click **SAVE** to add the source
+5. Click **START** on any source to begin receiving
+6. Monitor multiple streams simultaneously in the grid view
+7. View real-time statistics (bitrate, FPS) for each stream
+
+**Managing Sources:**
+- Edit: Click the pencil icon on any source card
+- Delete: Click the X icon (stream will stop if active)
+- Start/Stop: Use the button on each source card independently
 
 ## SRT Mode Descriptions
 
@@ -103,10 +128,21 @@ Receive and display incoming video streams:
 
 ## Configuration Options
 
+### Sender Mode
+- **SRT Mode**: Caller, Listener, or Rendezvous
 - **Address**: IP address or hostname (disabled in Listener mode)
 - **Port**: Port number (1-65535)
 - **Latency**: SRT latency in milliseconds (20-8000ms, default: 120ms)
-- **Input Source** (Sender only): Various test patterns at different resolutions
+- **Input Source**: Various test patterns at different resolutions
+
+### Receiver Mode (Per Source)
+- **Source Name**: Descriptive name for the stream
+- **Network Type**: Internet, 5G, Satellite, LTE, Fiber, or Other
+- **SRT Mode**: Caller, Listener, or Rendezvous
+- **Address**: IP address or hostname (disabled in Listener mode)
+- **Port**: Port number (1-65535)
+- **Latency**: SRT latency in milliseconds (20-8000ms, default: 120ms)
+- **Passphrase**: Optional encryption passphrase for secure streams
 
 ## Technical Details
 
@@ -139,9 +175,14 @@ Receive and display incoming video streams:
 - Try increasing the latency value
 
 ### No Video Display in Receiver Mode
-- The current implementation requires additional setup for video playback
-- For production use, integrate a media server (e.g., HLS/DASH streaming)
+- The current implementation monitors streams and shows statistics
+- For production video playback, integrate a media server (e.g., HLS/DASH streaming)
 - Check the log section for error messages
+
+### Multiple Sources Not Connecting
+- Ensure each source uses a unique port when in Listener mode
+- Different sources can use the same port if using Caller mode to different destinations
+- Check that your system can handle multiple concurrent FFmpeg processes
 
 ## Development
 

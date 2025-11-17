@@ -1,14 +1,19 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
+const fs = require('fs');
 
 let mainWindow;
-let ffmpegProcess = null;
+let ffmpegProcess = null; // For sender mode
+let streamProcesses = new Map(); // For receiver mode - multiple streams
+
+// Store for sources configuration
+const configPath = path.join(app.getPath('userData'), 'sources-config.json');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1400,
+    height: 900,
     backgroundColor: '#2a2a2a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -24,9 +29,13 @@ function createWindow() {
   // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', () => {
+    // Clean up all processes
     if (ffmpegProcess) {
       ffmpegProcess.kill();
     }
+    streamProcesses.forEach(process => {
+      if (process) process.kill();
+    });
     mainWindow = null;
   });
 }
@@ -47,7 +56,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-// Handle SRT sender
+// Handle SRT sender (single stream)
 ipcMain.handle('start-sender', async (event, config) => {
   try {
     if (ffmpegProcess) {
@@ -118,7 +127,120 @@ ipcMain.handle('start-sender', async (event, config) => {
   }
 });
 
-// Handle SRT receiver
+// Handle starting a receiver stream (one of potentially many)
+ipcMain.handle('start-source-stream', async (event, sourceId, config) => {
+  try {
+    // Stop existing stream for this source if any
+    if (streamProcesses.has(sourceId)) {
+      const existingProcess = streamProcesses.get(sourceId);
+      existingProcess.kill();
+      streamProcesses.delete(sourceId);
+    }
+
+    const { mode, address, port, latency, passphrase } = config;
+    let srtUrl;
+
+    // Build SRT URL based on mode
+    switch (mode) {
+      case 'caller':
+        srtUrl = `srt://${address}:${port}?mode=caller&latency=${latency}`;
+        break;
+      case 'listener':
+        srtUrl = `srt://:${port}?mode=listener&latency=${latency}`;
+        break;
+      case 'rendezvous':
+        srtUrl = `srt://${address}:${port}?mode=rendezvous&latency=${latency}`;
+        break;
+      default:
+        throw new Error('Invalid SRT mode');
+    }
+
+    // Add passphrase if provided
+    if (passphrase && passphrase.trim()) {
+      srtUrl += `&passphrase=${encodeURIComponent(passphrase)}`;
+    }
+
+    // FFmpeg command to receive stream and output stats
+    // For actual video playback, you'd need to set up a media server
+    // This implementation focuses on receiving and monitoring the stream
+    const ffmpegArgs = [
+      '-i', srtUrl,
+      '-c', 'copy',
+      '-f', 'null',
+      '-'
+    ];
+
+    const process = spawn('ffmpeg', ffmpegArgs);
+    streamProcesses.set(sourceId, process);
+
+    process.stderr.on('data', (data) => {
+      const message = data.toString();
+      console.log(`FFmpeg [${sourceId}]:`, message);
+
+      // Send logs specific to this source
+      mainWindow.webContents.send('source-stream-log', { sourceId, message });
+
+      // Check for connection success
+      if (message.includes('Opening') || message.includes('Opened')) {
+        mainWindow.webContents.send('source-stream-status', {
+          sourceId,
+          status: 'connected',
+          message: 'Stream connected'
+        });
+      }
+
+      // Parse bitrate and other stats
+      if (message.includes('bitrate=')) {
+        const bitrateMatch = message.match(/bitrate=\s*(\S+)/);
+        const fpsMatch = message.match(/fps=\s*(\S+)/);
+        if (bitrateMatch || fpsMatch) {
+          mainWindow.webContents.send('source-stream-stats', {
+            sourceId,
+            bitrate: bitrateMatch ? bitrateMatch[1] : null,
+            fps: fpsMatch ? fpsMatch[1] : null
+          });
+        }
+      }
+    });
+
+    process.on('error', (error) => {
+      console.error(`FFmpeg error [${sourceId}]:`, error);
+      mainWindow.webContents.send('source-stream-status', {
+        sourceId,
+        status: 'error',
+        message: error.message
+      });
+      streamProcesses.delete(sourceId);
+    });
+
+    process.on('close', (code) => {
+      console.log(`FFmpeg process closed [${sourceId}] with code:`, code);
+      mainWindow.webContents.send('source-stream-status', {
+        sourceId,
+        status: 'stopped',
+        message: 'Stream stopped'
+      });
+      streamProcesses.delete(sourceId);
+    });
+
+    return { success: true, message: 'Stream started' };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+});
+
+// Handle stopping a specific source stream
+ipcMain.handle('stop-source-stream', async (event, sourceId) => {
+  if (streamProcesses.has(sourceId)) {
+    const process = streamProcesses.get(sourceId);
+    process.kill();
+    streamProcesses.delete(sourceId);
+    return { success: true, message: 'Stream stopped' };
+  }
+  return { success: false, message: 'No active stream for this source' };
+});
+
+// Handle SRT receiver (legacy - single stream)
 ipcMain.handle('start-receiver', async (event, config) => {
   try {
     if (ffmpegProcess) {
@@ -189,7 +311,7 @@ ipcMain.handle('start-receiver', async (event, config) => {
   }
 });
 
-// Handle stop stream
+// Handle stop stream (sender or legacy receiver)
 ipcMain.handle('stop-stream', async () => {
   if (ffmpegProcess) {
     ffmpegProcess.kill();
@@ -197,6 +319,17 @@ ipcMain.handle('stop-stream', async () => {
     return { success: true, message: 'Stream stopped' };
   }
   return { success: false, message: 'No active stream' };
+});
+
+// Handle stopping all streams
+ipcMain.handle('stop-all-streams', async () => {
+  let count = 0;
+  streamProcesses.forEach((process, sourceId) => {
+    process.kill();
+    count++;
+  });
+  streamProcesses.clear();
+  return { success: true, message: `Stopped ${count} stream(s)` };
 });
 
 // Check if FFmpeg is available
@@ -214,4 +347,29 @@ ipcMain.handle('check-ffmpeg', async () => {
       }
     });
   });
+});
+
+// Load saved sources configuration
+ipcMain.handle('load-sources', async () => {
+  try {
+    if (fs.existsSync(configPath)) {
+      const data = fs.readFileSync(configPath, 'utf8');
+      return { success: true, sources: JSON.parse(data) };
+    }
+    return { success: true, sources: [] };
+  } catch (error) {
+    console.error('Error loading sources:', error);
+    return { success: false, message: error.message, sources: [] };
+  }
+});
+
+// Save sources configuration
+ipcMain.handle('save-sources', async (event, sources) => {
+  try {
+    fs.writeFileSync(configPath, JSON.stringify(sources, null, 2), 'utf8');
+    return { success: true, message: 'Sources saved' };
+  } catch (error) {
+    console.error('Error saving sources:', error);
+    return { success: false, message: error.message };
+  }
 });

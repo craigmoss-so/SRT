@@ -5,17 +5,24 @@ A professional, production-ready Electron application for sending and receiving 
 ## Features
 
 - **Full SRT Compliance**: Utilizes FFmpeg with SRT support for complete protocol implementation
-- **Beautiful Modern UI**: Built with React and Tailwind CSS with a stunning macOS-optimized interface
+- **Automatic Dual-Path Failover**: Professional broadcast-grade redundancy with intelligent automatic switching
+- **Beautiful Greyscale UI**: Sophisticated broadcast-style interface optimized for production environments
 - **Dual Mode Operation**: Seamlessly switch between sender and receiver modes
 - **Live Stream Decoding**: Real-time HLS-based video playback for received streams
-- **Real-time Statistics**: Monitor bitrate, packet loss, RTT, and connection status
+- **Advanced Monitoring Dashboard**: Real-time graphs, debug logs, alerts, and AI assistant
+- **AI-Powered Assistant**: Context-aware troubleshooting with Ollama integration
 - **Production Ready**: Comprehensive error handling, logging, and stability features
 - **Cross-platform**: Works on macOS, Windows, and Linux
 - **Advanced Features**:
+  - **Primary/Redundant Input Failover** - Automatic quality-based switching
+  - Health scoring and quality monitoring
   - Encryption support with AES passphrase
   - Custom stream IDs
   - Configurable latency
   - Multiple input source options
+  - Real-time metrics graphs
+  - Intelligent alert system
+  - Complete debug console
 
 ## Prerequisites
 
@@ -130,6 +137,79 @@ npm run package
 
 4. **Click "Start Sending"**
 5. **Monitor statistics** in the right panel
+
+## Dual-Path Failover (Professional Redundancy)
+
+The application supports **professional broadcast-grade redundancy** with automatic failover between primary and redundant SRT inputs.
+
+### How It Works
+
+```
+┌─────────────┐         Primary SRT          ┌──────────────────┐
+│  Location A │    ═══════════════════>      │                  │
+│  (Sender)   │         Port 9000            │   Receiver       │
+└─────────────┘                              │   (This App)     │
+                                             │                  │
+┌─────────────┐       Redundant SRT          │  Auto Failover   │
+│  Location B │    ═══════════════════>      │  ✓ Active        │
+│  (Sender)   │         Port 9001            │                  │
+└─────────────┘                              └──────────────────┘
+```
+
+### Configuration
+
+**Receiver Setup for Dual-Path:**
+1. Select "Receiver" mode
+2. Enable "Dual-Path Failover" option
+3. Configure:
+   - **Primary Port**: 9000 (main feed)
+   - **Redundant Port**: 9001 (backup feed)
+   - **Latency**: Same on both paths
+   - **Passphrase**: Can be different for each path if needed
+
+**Sender Setup (Two Locations):**
+- **Location A**: Send to port 9000 (primary)
+- **Location B**: Send to port 9001 (redundant)
+
+### Intelligent Failover
+
+The system automatically switches based on **health scores (0-100)**:
+
+**Health Score Calculation:**
+- ✅ Connected: Base 100 points
+- ❌ Packet Loss: -20 points per 1% loss
+- ⚠️ Low Bitrate (<500 kbps): -30 points
+- ⚠️ High RTT (>300ms): -20 points
+
+**Switching Logic:**
+- Switches when health difference > 20 points (hysteresis prevents flapping)
+- 10-second cooldown between switches
+- Automatic alerts when switching occurs
+
+### Monitoring
+
+The **Dual Path Monitor** tab shows:
+- Real-time health scores for both paths
+- Active path indicator
+- Individual metrics (bitrate, RTT, packet loss)
+- Switch count and history
+- Visual health bars
+
+### AI Assistant Awareness
+
+The AI assistant understands dual-path setup:
+- "Which path is active?"
+- "Why did it switch to redundant?"
+- "What's the health of primary?"
+- "Show me failover history"
+
+### Use Cases
+
+Perfect for:
+- Live event production with critical uptime requirements
+- Remote contribution with unreliable networks
+- Studio links requiring 100% availability
+- Broadcast feeds where downtime is unacceptable
 
 ## Architecture
 

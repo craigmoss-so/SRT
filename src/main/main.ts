@@ -2,11 +2,13 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { DualPathSRTManager } from './dual-path-srt-manager';
 import { XStreamManager } from './xstream-manager';
+import { OllamaService } from './ollama-service';
 import { SimpleHTTPServer } from './http-server';
 
 let mainWindow: BrowserWindow | null = null;
 let srtManager: DualPathSRTManager | null = null;
 let xstreamManager: XStreamManager | null = null;
+let ollamaService: OllamaService | null = null;
 let httpServer: SimpleHTTPServer | null = null;
 
 function createWindow() {
@@ -47,6 +49,14 @@ app.whenReady().then(async () => {
   createWindow();
   srtManager = new DualPathSRTManager();
   xstreamManager = new XStreamManager();
+  ollamaService = new OllamaService();
+
+  // Set up Ollama token streaming
+  if (ollamaService) {
+    ollamaService.on('token', (token: string) => {
+      mainWindow?.webContents.send('ollama:token', token);
+    });
+  }
 
   // Start HTTP server for HLS streaming
   const streamDir = path.join(process.cwd(), 'stream');
@@ -227,6 +237,107 @@ ipcMain.handle('srt:get-active-path', async () => {
     if (!srtManager) throw new Error('SRT Manager not initialized');
     const activePath = srtManager.getActivePath();
     return { success: true, path: activePath };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Ollama IPC handlers
+ipcMain.handle('ollama:get-models', async () => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    const models = await ollamaService.getAvailableModels();
+    return { success: true, models };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:set-model', async (_, model: string) => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    ollamaService.setModel(model);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:get-model', async () => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    const model = ollamaService.getModel();
+    return { success: true, model };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:chat', async (_, message: string) => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    const response = await ollamaService.chat(message);
+    return { success: true, response };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:analyze-metrics', async () => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    const analysis = await ollamaService.analyzeMetrics();
+    return { success: true, analysis };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:analyze-alert', async (_, alertType: string, value: number) => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    const analysis = await ollamaService.analyzeAlert(alertType, value);
+    return { success: true, analysis };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:update-metrics', async (_, metrics) => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    ollamaService.updateMetrics(metrics);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:clear-conversation', async () => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    ollamaService.clearConversation();
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:check-connection', async () => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    const connected = await ollamaService.checkConnection();
+    return { success: true, connected };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+ipcMain.handle('ollama:set-base-url', async (_, url: string) => {
+  try {
+    if (!ollamaService) throw new Error('Ollama service not initialized');
+    ollamaService.setBaseUrl(url);
+    return { success: true };
   } catch (error) {
     return { success: false, error: (error as Error).message };
   }

@@ -40,4 +40,4 @@ Thumbs.db
 # Stream output
 stream/
 *.m3u8
-*.ts
+stream/*.ts

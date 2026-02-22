@@ -1,31 +1,19 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-// Expose protected methods that allow the renderer process to use ipcRenderer
-contextBridge.exposeInMainWorld('electronAPI', {
+// Define the API that will be exposed to the renderer process
+const electronAPI = {
   // SRT operations
   startSender: (config: any) => ipcRenderer.invoke('srt:start-sender', config),
   startReceiver: (config: any) => ipcRenderer.invoke('srt:start-receiver', config),
-  startDualReceiver: (config: any) => ipcRenderer.invoke('srt:start-dual-receiver', config),
   stop: () => ipcRenderer.invoke('srt:stop'),
   getStats: () => ipcRenderer.invoke('srt:get-stats'),
+  startDualReceiver: (config: any) => ipcRenderer.invoke('srt:start-dual-receiver', config),
   getDualStats: () => ipcRenderer.invoke('srt:get-dual-stats'),
   getActivePath: () => ipcRenderer.invoke('srt:get-active-path'),
 
-  // Event listeners
-  onData: (callback: (data: ArrayBuffer) => void) => {
-    ipcRenderer.on('srt:data', (_, data) => callback(data));
-  },
+  // SRT event listeners
   onStats: (callback: (stats: any) => void) => {
     ipcRenderer.on('srt:stats', (_, stats) => callback(stats));
-  },
-  onDualStats: (callback: (stats: any) => void) => {
-    ipcRenderer.on('srt:dual-stats', (_, stats) => callback(stats));
-  },
-  onPathSwitched: (callback: (info: any) => void) => {
-    ipcRenderer.on('srt:path-switched', (_, info) => callback(info));
-  },
-  onDualPathStarted: (callback: (info: any) => void) => {
-    ipcRenderer.on('srt:dual-path-started', (_, info) => callback(info));
   },
   onError: (callback: (error: string) => void) => {
     ipcRenderer.on('srt:error', (_, error) => callback(error));
@@ -33,48 +21,48 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onConnection: (callback: (info: any) => void) => {
     ipcRenderer.on('srt:connection', (_, info) => callback(info));
   },
+  onDualStats: (callback: (stats: any) => void) => {
+    ipcRenderer.on('srt:dual-stats', (_, stats) => callback(stats));
+  },
+  onPathSwitched: (callback: (info: any) => void) => {
+    ipcRenderer.on('srt:path-switched', (_, info) => callback(info));
+  },
 
-  // Remove listeners
+  // Ollama operations
+  ollama: {
+    getModels: () => ipcRenderer.invoke('ollama:get-models'),
+    setModel: (model: string) => ipcRenderer.invoke('ollama:set-model', model),
+    getModel: () => ipcRenderer.invoke('ollama:get-model'),
+    chat: (message: string) => ipcRenderer.invoke('ollama:chat', message),
+    analyzeMetrics: () => ipcRenderer.invoke('ollama:analyze-metrics'),
+    analyzeAlert: (alertType: string, value: number) =>
+      ipcRenderer.invoke('ollama:analyze-alert', alertType, value),
+    updateMetrics: (metrics: any) => ipcRenderer.invoke('ollama:update-metrics', metrics),
+    clearConversation: () => ipcRenderer.invoke('ollama:clear-conversation'),
+    checkConnection: () => ipcRenderer.invoke('ollama:check-connection'),
+    setBaseUrl: (url: string) => ipcRenderer.invoke('ollama:set-base-url', url),
+
+    // Token streaming listener
+    onToken: (callback: (token: string) => void) => {
+      ipcRenderer.on('ollama:token', (_, token) => callback(token));
+    },
+    removeTokenListener: () => {
+      ipcRenderer.removeAllListeners('ollama:token');
+    }
+  },
+
+  // Utility to remove all listeners
   removeAllListeners: (channel: string) => {
     ipcRenderer.removeAllListeners(channel);
-  },
-});
+  }
+};
 
-// Type definitions for TypeScript
-export interface ElectronAPI {
-  startSender: (config: SRTConfig) => Promise<{ success: boolean; error?: string }>;
-  startReceiver: (config: SRTConfig) => Promise<{ success: boolean; error?: string }>;
-  startDualReceiver: (config: SRTConfig) => Promise<{ success: boolean; error?: string }>;
-  stop: () => Promise<{ success: boolean; error?: string }>;
-  getStats: () => Promise<{ success: boolean; stats?: any; error?: string }>;
-  getDualStats: () => Promise<{ success: boolean; stats?: any; error?: string }>;
-  getActivePath: () => Promise<{ success: boolean; path?: string; error?: string }>;
-  onData: (callback: (data: ArrayBuffer) => void) => void;
-  onStats: (callback: (stats: any) => void) => void;
-  onDualStats: (callback: (stats: any) => void) => void;
-  onPathSwitched: (callback: (info: any) => void) => void;
-  onDualPathStarted: (callback: (info: any) => void) => void;
-  onError: (callback: (error: string) => void) => void;
-  onConnection: (callback: (info: any) => void) => void;
-  removeAllListeners: (channel: string) => void;
-}
+// Expose the API to the renderer process
+contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
-export interface SRTConfig {
-  mode: 'sender' | 'receiver' | 'dual-receiver';
-  host?: string;
-  port: number;
-  latency?: number;
-  passphrase?: string;
-  streamId?: string;
-  inputSource?: string;
-  redundantHost?: string;
-  redundantPort?: number;
-  redundantPassphrase?: string;
-  redundantStreamId?: string;
-}
-
+// Type declaration for the renderer process
 declare global {
   interface Window {
-    electronAPI: ElectronAPI;
+    electronAPI: typeof electronAPI;
   }
 }

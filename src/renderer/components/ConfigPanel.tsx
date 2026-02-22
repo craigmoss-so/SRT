@@ -8,6 +8,7 @@ interface ConfigPanelProps {
 }
 
 const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onStop }) => {
+  const [sourceType, setSourceType] = useState<'srt' | 'xstream'>('srt');
   const [host, setHost] = useState('127.0.0.1');
   const [port, setPort] = useState('9000');
   const [latency, setLatency] = useState('200');
@@ -15,17 +16,26 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
   const [streamId, setStreamId] = useState('');
   const [inputSource, setInputSource] = useState('');
 
+  // XStream fields
+  const [xstreamBaseUrl, setXstreamBaseUrl] = useState('https://');
+  const [xstreamUsername, setXstreamUsername] = useState('');
+  const [xstreamPassword, setXstreamPassword] = useState('');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const config = {
       mode,
-      host: mode === 'sender' ? host : undefined,
-      port: parseInt(port, 10),
-      latency: parseInt(latency, 10),
-      passphrase: passphrase || undefined,
-      streamId: streamId || undefined,
-      inputSource: inputSource || undefined,
+      sourceType,
+      host: mode === 'sender' && sourceType === 'srt' ? host : undefined,
+      port: sourceType === 'srt' ? parseInt(port, 10) : undefined,
+      latency: sourceType === 'srt' ? parseInt(latency, 10) : undefined,
+      passphrase: sourceType === 'srt' && passphrase ? passphrase : undefined,
+      streamId: sourceType === 'srt' && streamId ? streamId : undefined,
+      inputSource: sourceType === 'srt' && inputSource ? inputSource : undefined,
+      xstreamBaseUrl: sourceType === 'xstream' ? xstreamBaseUrl : undefined,
+      xstreamUsername: sourceType === 'xstream' ? xstreamUsername : undefined,
+      xstreamPassword: sourceType === 'xstream' ? xstreamPassword : undefined,
     };
 
     onStart(config);
@@ -42,8 +52,30 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
 
       <div className="flex-1 overflow-y-auto p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Host - Only for sender */}
-          {mode === 'sender' && (
+          {/* Source Type Selector */}
+          <div>
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
+              Source Type
+            </label>
+            <select
+              value={sourceType}
+              onChange={(e) => setSourceType(e.target.value as 'srt' | 'xstream')}
+              disabled={isRunning}
+              className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
+            >
+              <option value="srt">SRT Stream</option>
+              <option value="xstream">XStream</option>
+            </select>
+            <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
+              {sourceType === 'srt' ? 'Standard SRT protocol streaming' : 'XStream platform integration'}
+            </p>
+          </div>
+
+          {/* SRT Fields */}
+          {sourceType === 'srt' && (
+            <>
+              {/* Host - Only for sender */}
+              {mode === 'sender' && (
             <div>
               <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
                 Destination Host
@@ -157,6 +189,72 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ mode, isRunning, onStart, onS
               </div>
             </div>
           </details>
+            </>
+          )}
+
+          {/* XStream Fields */}
+          {sourceType === 'xstream' && (
+            <>
+              {/* Base URL */}
+              <div>
+                <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
+                  Base URL
+                </label>
+                <input
+                  type="url"
+                  value={xstreamBaseUrl}
+                  onChange={(e) => setXstreamBaseUrl(e.target.value)}
+                  disabled={isRunning}
+                  className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
+                  placeholder="https://xstream.example.com"
+                  required
+                />
+                <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
+                  XStream platform base URL
+                </p>
+              </div>
+
+              {/* Username */}
+              <div>
+                <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={xstreamUsername}
+                  onChange={(e) => setXstreamUsername(e.target.value)}
+                  disabled={isRunning}
+                  className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
+                  placeholder="username"
+                  required
+                  autoComplete="username"
+                />
+                <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
+                  XStream account username
+                </p>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={xstreamPassword}
+                  onChange={(e) => setXstreamPassword(e.target.value)}
+                  disabled={isRunning}
+                  className="w-full px-4 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded text-white placeholder-[var(--color-text-tertiary)] focus:outline-none focus:border-white/30 disabled:opacity-50 transition-colors"
+                  placeholder="••••••••"
+                  required
+                  autoComplete="current-password"
+                />
+                <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
+                  XStream account password
+                </p>
+              </div>
+            </>
+          )}
         </form>
       </div>
 

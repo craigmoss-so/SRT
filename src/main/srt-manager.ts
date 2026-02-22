@@ -5,6 +5,7 @@ import * as fs from 'fs';
 
 export interface SRTConfig {
   mode: 'sender' | 'receiver';
+  sourceType?: 'srt' | 'xstream'; // New field for source type
   host?: string;
   port: number;
   latency?: number;
@@ -12,6 +13,10 @@ export interface SRTConfig {
   streamId?: string;
   inputSource?: string;
   maxBandwidth?: number;
+  // XStream-specific fields
+  xstreamBaseUrl?: string;
+  xstreamUsername?: string;
+  xstreamPassword?: string;
 }
 
 export interface SRTStats {

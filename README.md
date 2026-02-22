@@ -1,217 +1,406 @@
-# SRT Streaming Application
+# SRT Stream Application
 
-A standalone desktop application for sending and receiving SRT (Secure Reliable Transport) streams on Windows and macOS. Built with Electron and featuring a beautiful greyscale UI with white text.
+A professional, production-ready Electron application for sending and receiving SRT (Secure Reliable Transport) video streams with a beautiful modern UI.
 
 ## Features
 
-- **Dual Mode Operation**: Switch between Sender and Receiver modes
-- **All SRT Modes Supported**:
-  - **Caller**: Connect to a listening endpoint
-  - **Listener**: Wait for incoming connections
-  - **Rendezvous**: Peer-to-peer connection mode
-- **Multi-Source Receiver**:
-  - Receive from multiple SRT sources simultaneously
-  - Configure sources for different networks (Internet, 5G, Satellite, LTE, Fiber)
-  - Each source runs independently with its own connection
-  - Visual sidebar showing all configured sources
-- **Source Management**:
-  - Add, edit, and delete SRT sources
-  - Save source configurations for quick access
-  - Start/stop individual streams independently
-  - Real-time stream statistics (bitrate, FPS)
-- **Real-time Monitoring**: View active streams with live status indicators
-- **Greyscale UI**: Clean, professional interface with white text
-- **Cross-platform**: Works on Windows and macOS
-- **Configurable Parameters**:
-  - Custom address and port per source
-  - Adjustable latency (20-8000ms)
-  - Optional encryption with passphrase
-  - Network type labeling for organization
-  - Multiple test pattern sources for sending
+- **Full SRT Compliance**: Utilizes FFmpeg with SRT support for complete protocol implementation
+- **Automatic Dual-Path Failover**: Professional broadcast-grade redundancy with intelligent automatic switching
+- **Beautiful Greyscale UI**: Sophisticated broadcast-style interface optimized for production environments
+- **Dual Mode Operation**: Seamlessly switch between sender and receiver modes
+- **Live Stream Decoding**: Real-time HLS-based video playback for received streams
+- **Advanced Monitoring Dashboard**: Real-time graphs, debug logs, alerts, and AI assistant
+- **AI-Powered Assistant**: Context-aware troubleshooting with Ollama integration
+- **Production Ready**: Comprehensive error handling, logging, and stability features
+- **Cross-platform**: Works on macOS, Windows, and Linux
+- **Advanced Features**:
+  - **Primary/Redundant Input Failover** - Automatic quality-based switching
+  - Health scoring and quality monitoring
+  - Encryption support with AES passphrase
+  - Custom stream IDs
+  - Configurable latency
+  - Multiple input source options
+  - Real-time metrics graphs
+  - Intelligent alert system
+  - Complete debug console
 
 ## Prerequisites
 
-Before running the application, you need to install FFmpeg with SRT support:
+### Required Software
 
-### Windows
-1. Download FFmpeg with SRT support from [https://github.com/BtbN/FFmpeg-Builds/releases](https://github.com/BtbN/FFmpeg-Builds/releases)
-2. Extract the archive and add the `bin` folder to your system PATH
-3. Verify installation: `ffmpeg -version`
+1. **Node.js** (v18 or higher)
+   ```bash
+   # Check your Node.js version
+   node --version
+   ```
 
-### macOS
-```bash
-brew install ffmpeg
-```
+2. **FFmpeg with SRT Support**
 
-Verify SRT support:
-```bash
-ffmpeg -protocols | grep srt
-```
+   **macOS** (recommended):
+   ```bash
+   # Using Homebrew
+   brew install ffmpeg
+   ```
+
+   **Windows**:
+   - Download FFmpeg with SRT support from https://ffmpeg.org/download.html
+   - Add FFmpeg to your system PATH
+
+   **Linux**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt update
+   sudo apt install ffmpeg
+
+   # Verify SRT support
+   ffmpeg -protocols | grep srt
+   ```
+
+3. **Git** (for cloning the repository)
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd SRT
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**:
+   ```bash
+   npm run dev
+   ```
+
+## Building for Production
+
+### macOS
+
+Build a DMG and ZIP for distribution:
 ```bash
-git clone <repository-url>
-cd SRT
+npm run package:mac
 ```
 
-2. Install dependencies:
+The built application will be in the `release` directory.
+
+### Windows
+
 ```bash
-npm install
+npm run package:win
+```
+
+### Linux
+
+```bash
+npm run package:linux
+```
+
+### All Platforms
+
+```bash
+npm run package
 ```
 
 ## Usage
 
-### Running in Development Mode
-```bash
-npm start
-```
-
-### Building for Production
-
-Build for Windows:
-```bash
-npm run build:win
-```
-
-Build for macOS:
-```bash
-npm run build:mac
-```
-
-Build for both platforms:
-```bash
-npm run build
-```
-
-The compiled applications will be available in the `dist` folder.
-
-## Application Modes
-
-### Sender Mode
-Send video streams using various test patterns:
-1. Select **SENDER** mode
-2. Choose SRT mode (Caller/Listener/Rendezvous)
-3. Configure address and port
-4. Select input source (test pattern)
-5. Click **START** to begin streaming
-
 ### Receiver Mode
-Receive from multiple SRT sources simultaneously:
-1. Select **RECEIVER** mode
-2. Click the **+** button in the sidebar to add a source
-3. Configure the source:
-   - Enter a descriptive name (e.g., "Internet Feed", "5G Camera")
-   - Select network type for organization
-   - Choose SRT mode (Caller/Listener/Rendezvous)
-   - Set address and port
-   - Adjust latency as needed
-   - Optionally add encryption passphrase
-4. Click **SAVE** to add the source
-5. Click **START** on any source to begin receiving
-6. Monitor multiple streams simultaneously in the grid view
-7. View real-time statistics (bitrate, FPS) for each stream
 
-**Managing Sources:**
-- Edit: Click the pencil icon on any source card
-- Delete: Click the X icon (stream will stop if active)
-- Start/Stop: Use the button on each source card independently
+1. **Start the Application**
+2. **Select "Receiver" mode** in the top-right toggle
+3. **Configure Settings**:
+   - **Listen Port**: The port to listen on (default: 9000)
+   - **Latency**: Buffer latency in milliseconds (default: 200ms)
+   - **Passphrase** (optional): Encryption key for secure transmission
+   - **Stream ID** (optional): Stream identifier
 
-## SRT Mode Descriptions
-
-- **Caller Mode**: The application initiates a connection to a remote listener. Use this when connecting to an existing SRT server.
-
-- **Listener Mode**: The application waits for incoming connections. The address field is disabled as it listens on all interfaces (0.0.0.0).
-
-- **Rendezvous Mode**: Both peers attempt to connect to each other simultaneously. Useful for peer-to-peer streaming where neither side is designated as server or client.
-
-## Configuration Options
+4. **Click "Start Receiving"**
+5. **Video will automatically play** when the stream is received
 
 ### Sender Mode
-- **SRT Mode**: Caller, Listener, or Rendezvous
-- **Address**: IP address or hostname (disabled in Listener mode)
-- **Port**: Port number (1-65535)
-- **Latency**: SRT latency in milliseconds (20-8000ms, default: 120ms)
-- **Input Source**: Various test patterns at different resolutions
 
-### Receiver Mode (Per Source)
-- **Source Name**: Descriptive name for the stream
-- **Network Type**: Internet, 5G, Satellite, LTE, Fiber, or Other
-- **SRT Mode**: Caller, Listener, or Rendezvous
-- **Address**: IP address or hostname (disabled in Listener mode)
-- **Port**: Port number (1-65535)
-- **Latency**: SRT latency in milliseconds (20-8000ms, default: 120ms)
-- **Passphrase**: Optional encryption passphrase for secure streams
+1. **Start the Application**
+2. **Select "Sender" mode** in the top-right toggle
+3. **Configure Settings**:
+   - **Destination Host**: IP address or hostname of the receiver
+   - **Destination Port**: Port number the receiver is listening on
+   - **Latency**: Buffer latency in milliseconds
+   - **Input Source**:
+     - Leave empty for test pattern
+     - Enter file path for video file: `/path/to/video.mp4`
+     - Enter URL for stream: `http://example.com/stream.m3u8`
+   - **Passphrase** (optional): Must match receiver's passphrase
+   - **Stream ID** (optional): Must match receiver's stream ID
 
-## Technical Details
+4. **Click "Start Sending"**
+5. **Monitor statistics** in the right panel
+
+## Dual-Path Failover (Professional Redundancy)
+
+The application supports **professional broadcast-grade redundancy** with automatic failover between primary and redundant SRT inputs.
+
+### How It Works
+
+```
+┌─────────────┐         Primary SRT          ┌──────────────────┐
+│  Location A │    ═══════════════════>      │                  │
+│  (Sender)   │         Port 9000            │   Receiver       │
+└─────────────┘                              │   (This App)     │
+                                             │                  │
+┌─────────────┐       Redundant SRT          │  Auto Failover   │
+│  Location B │    ═══════════════════>      │  ✓ Active        │
+│  (Sender)   │         Port 9001            │                  │
+└─────────────┘                              └──────────────────┘
+```
+
+### Configuration
+
+**Receiver Setup for Dual-Path:**
+1. Select "Receiver" mode
+2. Enable "Dual-Path Failover" option
+3. Configure:
+   - **Primary Port**: 9000 (main feed)
+   - **Redundant Port**: 9001 (backup feed)
+   - **Latency**: Same on both paths
+   - **Passphrase**: Can be different for each path if needed
+
+**Sender Setup (Two Locations):**
+- **Location A**: Send to port 9000 (primary)
+- **Location B**: Send to port 9001 (redundant)
+
+### Intelligent Failover
+
+The system automatically switches based on **health scores (0-100)**:
+
+**Health Score Calculation:**
+- ✅ Connected: Base 100 points
+- ❌ Packet Loss: -20 points per 1% loss
+- ⚠️ Low Bitrate (<500 kbps): -30 points
+- ⚠️ High RTT (>300ms): -20 points
+
+**Switching Logic:**
+- Switches when health difference > 20 points (hysteresis prevents flapping)
+- 10-second cooldown between switches
+- Automatic alerts when switching occurs
+
+### Monitoring
+
+The **Dual Path Monitor** tab shows:
+- Real-time health scores for both paths
+- Active path indicator
+- Individual metrics (bitrate, RTT, packet loss)
+- Switch count and history
+- Visual health bars
+
+### AI Assistant Awareness
+
+The AI assistant understands dual-path setup:
+- "Which path is active?"
+- "Why did it switch to redundant?"
+- "What's the health of primary?"
+- "Show me failover history"
+
+### Use Cases
+
+Perfect for:
+- Live event production with critical uptime requirements
+- Remote contribution with unreliable networks
+- Studio links requiring 100% availability
+- Broadcast feeds where downtime is unacceptable
+
+## Architecture
 
 ### Technology Stack
-- **Electron**: Cross-platform desktop framework
-- **FFmpeg**: Media processing and SRT protocol handling
-- **Node.js**: Backend logic and process management
 
-### Architecture
-- **Main Process** (`main.js`): Handles FFmpeg processes and IPC communication
-- **Renderer Process** (`renderer.js`): UI logic and user interactions
-- **Preload Script** (`preload.js`): Secure bridge between main and renderer processes
+- **Electron**: Cross-platform desktop application framework
+- **React**: UI component library
+- **TypeScript**: Type-safe development
+- **Tailwind CSS**: Modern utility-first CSS framework
+- **FFmpeg**: Video processing and SRT protocol implementation
+- **HLS.js**: Browser-based HLS video playback
 
-### Security
-- Context isolation enabled
-- Node integration disabled in renderer
-- Secure IPC communication via preload script
+### Project Structure
+
+```
+SRT/
+├── src/
+│   ├── main/                 # Electron main process
+│   │   ├── main.ts          # Application entry point
+│   │   ├── preload.ts       # Secure IPC bridge
+│   │   ├── srt-manager.ts   # SRT stream management
+│   │   └── http-server.ts   # HLS stream server
+│   └── renderer/             # React UI
+│       ├── components/       # React components
+│       │   ├── ConfigPanel.tsx
+│       │   ├── VideoPlayer.tsx
+│       │   ├── StatsPanel.tsx
+│       │   └── StatusBar.tsx
+│       ├── App.tsx          # Main application component
+│       ├── main.tsx         # React entry point
+│       └── index.css        # Global styles
+├── build/                    # Build resources
+│   └── entitlements.mac.plist
+├── dist/                     # Compiled output
+├── release/                  # Packaged applications
+└── stream/                   # Temporary HLS files
+```
+
+## SRT Protocol Details
+
+This application uses the SRT (Secure Reliable Transport) protocol, which provides:
+
+- **Low Latency**: Typically 200-500ms end-to-end
+- **Reliability**: Automatic packet retransmission
+- **Security**: AES encryption support
+- **Firewall Traversal**: Works across NAT and firewalls
+- **Adaptive Bitrate**: Dynamic bandwidth management
+
+### Typical Use Cases
+
+1. **Live Event Broadcasting**: Send live video feeds over the internet
+2. **Studio-to-Studio Links**: Connect remote production facilities
+3. **Remote Contribution**: Enable remote reporters and cameras
+4. **Backup Streaming**: Redundant stream delivery
+5. **Cloud Contribution**: Send feeds to cloud platforms
 
 ## Troubleshooting
 
 ### FFmpeg Not Found
-- Ensure FFmpeg is installed and in your system PATH
-- Restart the application after installing FFmpeg
-- Check the footer status message for FFmpeg availability
 
-### Stream Not Connecting
-- Verify the address and port are correct
-- Check firewall settings
-- Ensure the remote endpoint is running and accessible
-- Try increasing the latency value
+**Error**: "FFmpeg not found" or stream fails to start
 
-### No Video Display in Receiver Mode
-- The current implementation monitors streams and shows statistics
-- For production video playback, integrate a media server (e.g., HLS/DASH streaming)
-- Check the log section for error messages
+**Solution**:
+- Verify FFmpeg is installed: `ffmpeg -version`
+- Ensure FFmpeg is in your system PATH
+- On macOS, reinstall with: `brew reinstall ffmpeg`
 
-### Multiple Sources Not Connecting
-- Ensure each source uses a unique port when in Listener mode
-- Different sources can use the same port if using Caller mode to different destinations
-- Check that your system can handle multiple concurrent FFmpeg processes
+### Stream Not Playing
+
+**Error**: Video player shows "Waiting for stream..."
+
+**Solution**:
+- Verify the sender is running and connected
+- Check that ports are not blocked by firewall
+- Ensure sender and receiver use the same port number
+- Verify passphrase matches if encryption is enabled
+
+### High Packet Loss
+
+**Issue**: Statistics show high packet loss percentage
+
+**Solution**:
+- Increase latency setting (try 500-1000ms)
+- Check network connection quality
+- Reduce input video bitrate
+- Verify sender's upload bandwidth
+
+### Port Already in Use
+
+**Error**: "Port already in use" or "Address already in use"
+
+**Solution**:
+- Change the port number in configuration
+- Stop other applications using the same port
+- On macOS/Linux: `lsof -i :9000` to find processes using port 9000
 
 ## Development
 
-### Project Structure
-```
-SRT/
-├── main.js          # Electron main process
-├── preload.js       # Preload script for IPC
-├── renderer.js      # Frontend logic
-├── index.html       # UI structure
-├── styles.css       # Greyscale styling
-├── package.json     # Dependencies and scripts
-└── README.md        # Documentation
+### Development Mode
+
+Run the application in development mode with hot reload:
+
+```bash
+npm run dev
 ```
 
-### Adding Features
-- Modify `main.js` for backend functionality
-- Update `renderer.js` for UI logic
-- Enhance `styles.css` for styling changes
-- Edit `index.html` for UI structure
+This will:
+1. Start the Vite dev server for the renderer process
+2. Compile and run the Electron main process
+3. Open DevTools automatically
+
+### Building Components
+
+**Renderer only**:
+```bash
+npm run build:renderer
+```
+
+**Main process only**:
+```bash
+npm run build:main
+```
+
+**Both**:
+```bash
+npm run build
+```
+
+## Configuration
+
+### Recommended Settings
+
+**Low Latency** (< 1 second):
+- Latency: 200-300ms
+- Requires stable, high-quality network
+
+**Standard** (1-2 seconds):
+- Latency: 500-1000ms
+- Good balance for most use cases
+
+**High Reliability** (2-4 seconds):
+- Latency: 1500-3000ms
+- Best for unstable networks
+
+## Security
+
+### Encryption
+
+Enable encryption by setting a passphrase:
+- Length: 10-79 characters
+- Uses: AES-128 or AES-256 (based on length)
+- Both sender and receiver must use identical passphrase
+
+### Network Security
+
+- Only expose ports that are necessary
+- Use firewall rules to restrict access
+- Consider VPN for sensitive content
+- Rotate passphrases regularly
+
+## Performance Optimization
+
+### Sender Side
+
+- Use hardware-accelerated encoding if available
+- Match input resolution to network capacity
+- Use appropriate bitrate (2.5-5 Mbps for 1080p)
+- Enable `tune=zerolatency` for live content (already configured)
+
+### Receiver Side
+
+- Ensure sufficient CPU for decoding
+- Use hardware-accelerated video playback
+- Monitor buffer levels
+- Close unnecessary applications
 
 ## License
 
 MIT
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
-
 ## Support
 
-For issues and questions, please open an issue in the repository.
+For issues, questions, or contributions, please visit the repository issue tracker.
+
+## Credits
+
+Built with:
+- Electron
+- React
+- TypeScript
+- Tailwind CSS
+- FFmpeg
+- HLS.js
+- SRT Protocol (Haivision)
